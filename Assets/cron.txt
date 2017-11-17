@@ -1,0 +1,2 @@
+5 * * * * cd /srv/shiny-server && Rscript dataprep.R > /srv/shiny-server/runlog.log 2>&1
+8 * * * * cd /srv/shiny-server && Rscript LogScraper.R > /srv/shiny-server/runlog.log 2>&1
