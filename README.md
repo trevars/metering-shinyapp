@@ -1,8 +1,6 @@
 # metering-shinyapp
 Suite for managing shinyR application to display Data Commons resource use
 
-# Why Resource Tagging / Why Cost Explorer App?
-
 ## Dashboard Examples
 
 ![](/Assets/HomePage.png)
@@ -94,18 +92,6 @@ Point to VM.
 Work with kyle to put inside VPC, nginx password protect behind reverse proxy
 Password protecting behind apache/nginx server? 
 
-### Documentation and push
-
-Screenshots, motivation
-diagram of application? 
-reorg of directory, look for best practices on supporting docker files
-discuss test suite in tagging resources
-
-### Kubernetes support
-
-Update and Incorporate .yaml so can be added quickly as commons service.
-
-https://github.com/uc-cdis/shiny-apps/tree/master/nb2/k8s
 
 
 
