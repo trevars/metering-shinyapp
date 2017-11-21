@@ -37,7 +37,7 @@ Setup a new IAM user that will just be used for metering and policy review.   As
 
 Get the s3 keys associated with user and add them to `global.R`.
 
-# Setting up App
+# Deployment
 
 The containerized application sets off an hourly cron to check logs (`LogScraper.R`) and check metering (`dataprep.R`) that are fed into the shiny server dashboard. 
 
@@ -49,9 +49,7 @@ Update the global.R with the key values for the IAM user, bucket names, generic 
 
 ## Get VM
 
-Tag "commonsmetering" for org and resource name.   Suggest: t2.medium
-
-Open port 80 to serve traffic...  
+Tag "commonsmetering" for org and resource name.   Suggest: t2.medium.   Open up http `80` and https `443`.  Open ssh to your ip.   SSH to VM and copy your global.R to the VM.  
 
 ## Get Container
 
@@ -60,7 +58,7 @@ Open port 80 to serve traffic...
 Get container from Quay. 
 
 ```
-docker pull quay.io/occ_data/costapp
+sudo docker pull quay.io/occ_data/costapp
 ```
 
 Tmux/Screen to multiplex.  Then run the container injecting your own local `global.R` creds in to the application.   
@@ -80,17 +78,20 @@ docker build -t costapp .
 Run your build:   Insert your `global.R` keys to make it work. 
 
 ```
-docker run --rm -v $(pwd)/global.R:/srv/shiny-server/global.R -p 80:80 --name costapp costapp
+docker run --rm -v $(pwd)/global.R:/srv/shiny-server/global.R -p 127.0.0.1:80:80 --name costapp costapp
 ```
 
 ## Update Route53
 
-Point to VM.  
+Create an `A` record for `cost-explorer.<commons-domainname>.xxx` and point it to your vm.  
 
-### Security 
+## Setting Up Security
 
-Work with kyle to put inside VPC, nginx password protect behind reverse proxy
-Password protecting behind apache/nginx server? 
+Get an SSL Certificate using AWS manager or Let's Encrypt and add to the VM.    
+
+Setup Proxy Server, set-username and passwords.   Setup Websock Timeout, etc?
+
+Redirect http -> https.
 
 
 
