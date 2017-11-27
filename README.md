@@ -49,7 +49,7 @@ Update the global.R with the key values for the IAM user, bucket names, generic 
 
 ## Get VM
 
-Tag "commonsmetering" for org and resource name.   Suggest: t2.medium.   Open up http `80` and https `443`.  Open ssh to your ip.   SSH to VM and copy your global.R to the VM.  
+Tag "commonsmetering" for org and resource name.   Suggest: t2.medium.   Use an image that has docker installed, or install docker CE.  Open up http `80` and https `443`.  Open ssh to your ip.   SSH to VM and copy your global.R to the VM.   
 
 ## Get Container
 
@@ -64,7 +64,7 @@ sudo docker pull quay.io/occ_data/costapp
 Tmux/Screen to multiplex.  Then run the container injecting your own local `global.R` creds in to the application.   
 
 ```
-sudo docker run --rm -v $(pwd)/global.R:/srv/shiny-server/global.R -p 80:80 --name costapp quay.io/occ_data/costapp
+sudo docker run --rm -v $(pwd)/global.R:/srv/shiny-server/global.R -p 127.0.0.1:80:80 --name costapp quay.io/occ_data/costapp
 ```
  
 ### Option 2:  Build your own container
