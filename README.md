@@ -150,7 +150,7 @@ default upgrade;
  }
 ```
 
-### Step Three: create add_htpasswd_user.sh
+### Step Three: create and run add_htpasswd_user.sh
 
 ```
 #!/bin/bash
