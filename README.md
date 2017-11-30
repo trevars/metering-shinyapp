@@ -41,11 +41,11 @@ Get the s3 keys associated with user and add them to `global.R`.
 
 The containerized application sets off an hourly cron to check logs (`LogScraper.R`) and check metering (`dataprep.R`) that are fed into the shiny server dashboard. 
 
-To review logs or troubleshoot in the running container, run: `docker exec -ti <con bash`.  
+To review logs or troubleshoot in the running container, run: `docker exec -ti <container-id> /bin/bash`.  
 
 ## Configuring global.R Creds
 
-Update the global.R with the key values for the IAM user, bucket names, generic environment tag to use when cleaning, commons name, and image url.   You'll inject this into the docker container to run the application.  
+Update the global.R with the key values for the IAM user, billing and log bucket names, generic environment tag to use when cleaning metering, commons name for display in the app, and image url.   You'll inject this into the docker container to run the application.  
 
 ## Get VM
 
@@ -85,14 +85,81 @@ docker run --rm -v $(pwd)/global.R:/srv/shiny-server/global.R -p 127.0.0.1:80:80
 
 Create an `A` record for `cost-explorer.<commons-domainname>.xxx` and point it to your vm.  
 
-## Setting Up Security
+## Get an SSL Certificate
 
-Get an SSL Certificate using AWS manager or Let's Encrypt and add to the VM.    
+Get an SSL Certificate using AWS manager or Let's Encrypt and add to the VM.    Store those path files for use below.  
 
-Setup Proxy Server, set-username and passwords.   Setup Websock Timeout, etc?
+## NGINX setup
 
-Redirect http -> https.
+For this to work, you need the server in DNS first.
 
+* make files in /etc/nginx/sites-available/
+	* see below
+* symlink those files to /etc/nginx/sites-enabled/
+* setup letsencrypt (do we need to do this before? Lets find out)
+* run /root/add_htpassword_user.sh to create password file
+	* see below below to create
+* restart nginx (`service nginx restart`)
+
+### Step One: Make /etc/nginx/sites-avilable/redirect
+
+```
+server {
+  listen <insert your local ip here>:80 default_server;
+  server_name _;
+  return 301 https://cost-explorer.<commons-domainname>.xxx;
+}
+```
+### Step Two: Make /etc/nginx/site-available/reverse
+
+```
+map $http_upgrade $connection_upgrade {
+default upgrade;
+  '' close;
+  }
+  upstream websocket {
+    server 127.0.0.1:80;
+  }
+  server {
+    ssl on;
+    ssl_certificate <insert path to your own pem file here>;
+    ssl_certificate key <insert path to your own certificate's key here>;
+    ssl_protocols TLSv1.2;
+    ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256';
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    server_tokens off;
+    listen 443;
+    server_name cost-explorer.<commons-domainname>.xxx;
+    location / {
+      allow 0.0.0.0/0;
+      #deny all;
+      auth_basic "Restricted Content";
+      auth_basic_user_file /etc/nginx/htpassword;
+      proxy_buffering off;
+      proxy_pass http://websocket;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $connection_upgrade;
+      proxy_connect_timeout 43200000;
+      proxy_read_timeout 43200000;
+      tcp_nodelay on;
+    }
+ }
+```
+
+### Step Three: create add_htpasswd_user.sh
+
+```
+#!/bin/bash
+PASSWORD_FILE=/etc/nginx/htpassword
+echo enter username to add
+read USERNAME
+echo -n "${USERNAME}:" >> $PASSWORD_FILE
+openssl passwd -apr1 >> $PASSWORD_FILE
+```
 
 
 
