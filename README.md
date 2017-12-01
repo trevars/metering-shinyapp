@@ -93,13 +93,32 @@ Get an SSL Certificate using AWS manager or Let's Encrypt and add to the VM.    
 
 For this to work, you need the server in DNS first.
 
-* make files in /etc/nginx/sites-available/
-	* see below
-* symlink those files to /etc/nginx/sites-enabled/
-* setup letsencrypt (do we need to do this before? Lets find out)
+Please keep in mind, this is ONE way of may to setup SSL with letsencrypt. Feel free to use your own preferred method
+
+* Stop anything running on port 809
+* Install nginx
+	* `apt-get install nginx`
+* Install certbot from https://certbot.eff.org
+	* Follow the instructions on their site
+* Create the redirect file (see below) for certbot to have enough information to work with
+	* create the file in /etc/nginx/sites-available
+	* make sure you fill in server_name, and enter your LOCAL IP address in the listen line
+	* link the file to /etc/nginx/sites-enabled
+	* `ln -s /etc/nginx/sites-available/redirect /etc/nginx/sites-enabled/redirect`
+* restart nginx (I'm not sure this is necessary)
+* Create certificate with certbot
+	* `sudo certbot --nginx`
+	* Follow prompts, make sure you give a real email address, since that's where they'll let you know if your cert is expiring and needs to be manually updated
+	* Select NO redirect, although if you screw up, don't worry, just remake the one from earlier
+* Create the reverse file
+	* create the file in /etc/nginx/sites-available
+	* make sure you update it to point to your new cert files, and enter in your server_name
+	* link the file to /etc/nginx/sites-enabled
+	* `ln -s /etc/nginx/sites-available/reverse /etc/nginx/sites-enabled/reverse`
 * run /root/add_htpassword_user.sh to create password file
 	* see below below to create
-* restart nginx (`service nginx restart`)
+* restart nginx
+	* `service nginx restart`
 
 ### Step One: Make /etc/nginx/sites-avilable/redirect
 
