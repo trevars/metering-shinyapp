@@ -19,7 +19,7 @@ To aid in IDing which resources are appropriately tagged and which should be upd
 
 ## Setting up Billing and Bucket Logs
 
-Make sure billing logs are setup in full for your resource and create a bucket for AWS to push detailed logs.   AWS has good instructions for this step.  Make sure to select the most granular / detailed output, as the application will parse these to understand use.   
+Make sure billing logs are setup in full for your resource and create a bucket for AWS to push detailed logs.   AWS has good instructions for this step.  Make sure to select the most granular / detailed output, as the application will parse these to understand use. At minimum, you'll need logs to yield files with `tags-and-resources` in the name and other with `aws-billing-csv` in the name.   
 
 Make sure to activate your tags in the billing console so that they are used by AWS and pushed to the new bucket.  
 
